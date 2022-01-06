@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="library.css">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        
+        <label for="titre">Titre:</label><input id="titre" type="text"><p id="p_titre"></p><br>
+        <label for="auteur">Auteur:</label><input id="auteur" type="text"><p id="p_auteur"></p><br>
+        <label for="prix">Prix:</label><input id="prix" type="text"><p id="p_prix"></p><br>
+        <label for="date">Date Publication:</label><input id="date" type="date"><p id="p_date"></p><br>
+        <label for="Email">Email</label><input id="Email" placeholder="Email" type="text" ><p id="p_Email"></p><br>
+        <label for="langue">Langues:</label>
+        <select id="langue">
+            <option disabled selected hidden value>select</option>
+            <option>Français</option>
+            <option>Anglais</option>
+            <option>Arabic</option>
+        </select><p id="p_date"></p><br>
+        Roman<input class="check" value="Roman" name="radioBtn" type="radio">
+        Essai<input class="check" value="Essai" name="radioBtn" type="radio">
+        Bande-Dessinée<input class="check" value="Bande-Dessinée" name="radioBtn" type="radio"><br>
+        <p id="errorType"></p>
+        <input id="submitBtn" type="submit" value="Envoyer">
+    </form>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Auteur</th>
+                <th>Prix</th>
+                <th>Date de publication</th>
+                <th>Email</th>
+                <th>Langue</th>
+                <th>Type</th>
+                <th>delete/edit</th>
+            </tr>
+        </thead>
+        <tbody id="table">
+
+        </tbody>
+
+    </table>
+
+    <script>
+        var titre = document.getElementById("titre");
+        var auteur = document.getElementById("auteur");
+        var prix = document.getElementById("prix");
+        var date = document.getElementById("date");
+        var myform = document.getElementsByTagName("form")[0];
+        var lang = document.getElementById("langue");
+        var books_type = document.getElementsByClassName("check");
+        var errorType=document.getElementById("errorType");
+        var myTable = document.getElementById("table");
+        var submit_btn = document.getElementById("submitBtn");
+        var email=document.getElementById("Email");
+        var errorEmail=document.getElementById("p_Email")
+        var errorPrix=document.getElementById("p_prix")
+        var list=[]
+        var listLivre = [];
+
+
+        class ouvrage{
+            constructor(titre,auteur,prix,date,email,lang,type){
+            this.titre=titre;
+            this.auteur=auteur;
+            this.prix=prix;
+            this.date=date;
+            this.email=email;
+            this.lang=lang;
+            this.type=type;
+            }
+        }
+
+        function triage(){
+                listLivre.sort(function(a,b){
+                    if(a.titre<b.titre){
+                        return -1;
+                    }
+                })
+            }
+        function remplire(){
+            for(var i=0;i<listLivre.length;i++){
+            var row = myTable.insertRow();
+            row.insertCell(0).innerHTML = listLivre[i].titre;
+            row.insertCell(1).innerHTML = listLivre[i].auteur;
+            row.insertCell(2).innerHTML = listLivre[i].prix;
+            row.insertCell(3).innerHTML = listLivre[i].date;
+            row.insertCell(4).innerHTML = listLivre[i].email;
+            row.insertCell(5).innerHTML = listLivre[i].lang;
+            row.insertCell(6).innerHTML = listLivre[i].type;
+            row.insertCell(7).innerHTML = "<input class='edit_btn' onclick='modifier(this)' type='button' value='Edit'>" +
+                "<input class='dlt_btn' onclick='supprimer(this)' type='button' value='Delete'>";
+            }
+        }
+        
+            var list_temp = "";
+            //list_temp = JSON.parse(localStorage.getItem("list"));
+
+            if (list_temp != null){
+                
+                for(i=0;i<list_temp.length;i++){
+                    var bookInfo = new ouvrage(list_temp[i].titre, list_temp[i].auteur, list_temp[i].priX, list_temp[i].date, list_temp[i].email, list_temp[i].lang, list_temp[i].type)
+                    listLivre.push(bookInfo);
+                    triage();
+                    localStorage.setItem("list",JSON.stringify(listLivre));
+                }
+
+            }
+            myTable.innerHTML="";
+            remplire();
+            
+
+
+            
+
+        function submit_form(e){
+            e.preventDefault();
+           
+            if(titre.value.length>30){
+
+                var errorp=document.getElementById("p_titre");
+                errorp.innerHTML=('vous avez depassez le maximum lettres');
+                errorp.style.color='red';
+                //alert("vous avez depassez le maximum lettres");
+            }
+            if(titre.value==""){
+                var errorp=document.getElementById('p_titre');
+                errorp.innerHTML=('Ne laissez pas vide!');
+                errorp.style.color='red';
+            }
+           
+            if(auteur.value.length>30){
+                var errorp=document.getElementById('p_auteur');
+                errorp.innerHTML=('vous avez depassez le maximum lettres');
+                errorp.style.color='red';   
+            }
+            else if(auteur.value==""){
+                var errorp=document.getElementById('p_auteur');
+                errorp.innerHTML=('Ne laissez pas vide!');
+                errorp.style.color='red';
+            }
+            else{
+                auteur.style.borderColor = "green"
+                auteur.nextElementSibling.style.color = "green";
+                auteur.nextElementSibling.innerHTML = "ok"
+            }
+            //PRIX
+            // if(prix.value==""){
+            //     var errorp=document.getElementById('p_prix');
+            //     errorp.innerHTML=('Ne laissez pas vide!');
+            //     errorp.style.color='red';
+            // }
+            //  if(isNaN(prix.value)){
+            //     prix.style.borderColor = "red"
+            //     prix.nextElementSibling.innerHTML = "juste des nombres";
+            //     prix.nextElementSibling.style.color = "red";
+            //  }
+            var regxPrix = /^[0-9]+((\.[0-9]{2})|())$/;
+            if (prix.value!= "") {
+                
+           
+                if (regxPrix.test(prix.value)){
+                errorPrix.innerHTML="correct"
+                errorPrix.style.color="green"
+                }
+                else{
+                errorPrix.innerHTML='incorrect'
+                errorPrix.style.color='red'
+                    }
+                }
+             else {
+            errorPrix.innerHTML="remplire!!"
+            errorPrix.style.color="red"
+             }
+            //DATE
+            if(date.value==""){
+                var errorp=document.getElementById('p_date');
+                errorp.innerHTML=('Ne laissez pas vide!');
+                errorp.style.color='red';
+            }
+        
+            // //PRIX
+            //  if(isNaN(prix.value)){
+            //     prix.style.borderColor = "red"
+            //     prix.nextElementSibling.innerHTML = "juste des nombres";
+            //     prix.nextElementSibling.style.color = "red";
+            //  }
+            //  else{
+            //     prix.style.borderColor = "green"
+            //     prix.nextElementSibling.style.color = "green";
+            //     prix.nextElementSibling.innerHTML = "ok"
+            // }
+             //langue
+            if(lang.value == ""){
+                lang.style.borderColor = "red"
+                lang.nextElementSibling.style.color = "red";
+                lang.nextElementSibling.innerHTML = "shoisir une langue"
+            }
+            else{
+                lang.style.borderColor = "green"
+                lang.nextElementSibling.style.color = "green";
+                lang.nextElementSibling.innerHTML = "ok"
+            }
+            if (!(books_type[0].checked || books_type[1].checked || books_type[2].checked)){
+            form_ok = false;
+            errorType.innerHTML ='please select a type';
+            errorType.style.color ='red';
+    }
+         else {
+          errorType.innerHTML = 'good!';
+          errorType.style.color = 'green'; 
+          }
+        
+        //Email
+        var regxEmail = /^([a-zA-Z0-9\._]+)@([a-zA-Z0-9])+.([a-z]+)(.[a-z]+)?$/
+        
+        if(Email.value != ""){
+           
+            if (regxEmail.test(Email.value)){
+                errorEmail.innerHTML="Email validée"
+                errorEmail.style.color="green"
+            }
+            else{
+                errorEmail.innerHTML='Email non validée'
+                errorEmail.style.color='red'
+            }
+        
+        }
+
+        else {
+            errorEmail.innerHTML="remplire!!"
+            errorEmail.style.color="red"
+        }
+        // function validate(){
+        //     Email.value;
+        //     if(regx.text(Email)){
+               
+                
+        //     }
+        //     else{
+        //         alert("sorry! incorrect Email ID")
+        //         return false;
+        //     }    
+            
+        // }
+
+        
+          
+       var row = myTable.insertRow(-1);
+       var cell1 = row.insertCell(0);
+       var cell2 = row.insertCell(1);
+       var cell3 = row.insertCell(2);
+       var cell4 = row.insertCell(3);
+       var cell5 = row.insertCell(4);
+       var cell6 = row.insertCell(5);
+       var cell7 = row.insertCell(6);
+       var cell8 = row.insertCell(7);
+       var temp;
+       for(var i=0;i<3;i++){
+        if(books_type[i].checked==true){
+            temp = books_type[i].value;
+            break;
+        }
+       }
+       var mylist=new ouvrage(titre.value,auteur.value,prix.value,date.value,email.value,lang.value,temp);
+       listLivre.push(mylist)
+       triage();
+       localStorage.setItem("list", JSON.stringify(listLivre));
+       myTable.innerHTML="";
+       remplire();
+    }
+
+    function supprimer(btn){
+        var i = btn.parentNode.parentNode.rowIndex-1;
+        console.log(i);
+        myTable.deleteRow(i);
+        localStorage.setItem("list",JSON.stringify(listLivre));
+    }
+
+    function modifier(btn){
+        var i = btn.parentNode.parentNode.rowIndex;
+        var row = myTable.rows[i];
+
+        if(btn.value == "Modifier"){
+            titre.value = row.cells[0].innerHTML;
+            auteur.value = row.cells[1].innerHTML;
+            prix.value = row.cells[2].innerHTML;
+            date.value = row.cells[3].innerHTML;
+            lang.value = row.cells[4].innerHTML;
+            
+            for(var i=0;i<3;i++){
+                if(row.cells[5].innerHTML==books_type[i].value){
+                    books_type[i].checked = true;
+                    break;
+                }
+            }
+
+            submit_btn.setAttribute("disabled","true");
+            btn.value = "Enregistrer";
+        }
+        else{
+            row.cells[0].innerHTML = titre.value;
+            row.cells[1].innerHTML = auteur.value;
+            row.cells[2].innerHTML = prix.value;
+            row.cells[3].innerHTML = Email.value;
+            row.cells[4].innerHTML = date.value;
+            row.cells[5].innerHTML = lang.value;
+            btn.value = "Modifier";
+            submit_btn.removeAttribute("disabled")
+        }
+        
+
+    }
+
+    myform.addEventListener("submit",submit_form);
+        
+
+
+        
+
+    </script>
+</body>
+</html>
